@@ -101,11 +101,11 @@ namespace {
 		Real c_;
 	};
 
-	void testPortfolioAllocationConstraints() {
+	void testPortfolioAllocationConstraints(Matrix covarianceMatrix, Matrix portfolioReturnVector) {
 	//BOOST_AUTO_TEST_CASE(testNoShortSales) {
 
+/*
 		Matrix covarianceMatrix(4, 4);
-
 		//row 1
 		covarianceMatrix[0][0] = .1; //AAPL-AAPL
 		covarianceMatrix[0][1] = .03; //AAPL-IBM
@@ -126,17 +126,17 @@ namespace {
 		covarianceMatrix[3][1] = .03; //GOOG-IBM
 		covarianceMatrix[3][2] = .2; //GOOG-ORCL
 		covarianceMatrix[3][3] = .9; //GOOG-GOOG
-
+		*/
 		std::cout << "Covariance matrix of returns: " << std::endl;
 		std::cout << covarianceMatrix << std::endl;
-
+		/*
 		//portfolio return vector         
 		Matrix portfolioReturnVector(4, 1);
 		portfolioReturnVector[0][0] = .08; //AAPL
 		portfolioReturnVector[1][0] = .09; //IBM
 		portfolioReturnVector[2][0] = .10; //ORCL
 		portfolioReturnVector[3][0] = .11; //GOOG
-
+		*/
 		std::cout << "Portfolio return vector" << std::endl;
 		std::cout << portfolioReturnVector << std::endl;
 

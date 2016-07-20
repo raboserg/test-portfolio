@@ -63,7 +63,8 @@ void readDataFromFile() {
 		portfolioReturnVector[index++][0] = i->second[0];
 	}
 	
-	testEfficientFrontier(PortfolioStatistics::instance().covariance(), portfolioReturnVector);
+	//testEfficientFrontier(PortfolioStatistics::instance().covariance(), portfolioReturnVector);
+	testPortfolioAllocationConstraints(PortfolioStatistics::instance().covariance(), portfolioReturnVector);
 	
 	//copy(v.begin(), v.end(), ostream_iterator<string>(cout, "\n"));
 	
