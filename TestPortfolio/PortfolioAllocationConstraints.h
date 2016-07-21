@@ -6,6 +6,7 @@
 #include <boost/detail/lightweight_test.hpp>
 #include <ql/quantlib.hpp>
 #include <boost/format.hpp>
+#include <boost/range/numeric.hpp>
 #include <functional>
 #include <numeric>
 #include <fstream>
@@ -32,8 +33,7 @@ namespace {
 				expressions_(expressions) {}
 
 			bool test(const Array& x) const {
-				for (auto iter = expressions_.begin();
-					iter < expressions_.end(); ++iter) {
+				for (auto iter = expressions_.begin(); iter < expressions_.end(); ++iter) {
 					if (!(*iter)(x)) {
 						return false;
 					}
@@ -52,21 +52,31 @@ namespace {
 	class ThetaCostFunction : public CostFunction {
 
 	public:
-		ThetaCostFunction(const Matrix& covarianceMatrix, const Matrix& returnMatrix) : 
-				covarianceMatrix_(covarianceMatrix),returnMatrix_(returnMatrix) {}
+		ThetaCostFunction(const Matrix& covarianceMatrix, const Matrix& returnMatrix, const int sizeProportions) :
+				covarianceMatrix_(covarianceMatrix),returnMatrix_(returnMatrix), sizeProportions_(sizeProportions) {}
 
 		Real value(const Array& proportions) const {
-			QL_REQUIRE(proportions.size() == 3, "Four assets in portfolio!");
-			Array allProportions(4);
+			QL_REQUIRE(proportions.size() == sizeProportions_, "Four assets in portfolio!");
+			Array allProportions((sizeProportions_ + 1));
+			//???cout << boost::format("accumulate: %.4f") % boost::accumulate(proportions, 0, plus<Real>()) << std::endl;
+			copy(proportions.begin(), proportions.end(), allProportions.begin());
+			
+			Real accumulate_ = 0;
+			for (Array::const_iterator i = proportions.begin(); i != proportions.end(); ++i) {
+				accumulate_ += *i; 
+			}
+			allProportions[sizeProportions_] = 1 - accumulate_;
+			/*
 			allProportions[0] = proportions[0];
 			allProportions[1] = proportions[1];
 			allProportions[2] = proportions[2];
 			allProportions[3] = 1 - (proportions[0] + proportions[1] + proportions[2]);
+			*/
 			return -1 * ((portfolioMean(allProportions) - c_) / portfolioStdDeviation(allProportions));
 		}
 
 		Disposable<Array> values(const Array& proportions) const {
-			QL_REQUIRE(proportions.size() == 3, "Four assets in portfolio!");
+			QL_REQUIRE(proportions.size() == sizeProportions_, "Four assets in portfolio!");
 			Array values(1);
 			values[0] = value(proportions);
 			return values;
@@ -83,11 +93,8 @@ namespace {
 		}
 
 		Real portfolioStdDeviation(const Array& proportions) const {
-			Matrix matrixProportions(4, 1);
-			for (size_t row = 0; row < 4; ++row) {
-				matrixProportions[row][0] = proportions[row];
-			}
-
+			Matrix matrixProportions(sizeProportions_ + 1, 1);
+			copy(proportions.begin(), proportions.end(), matrixProportions.row_begin(0));
 			const Matrix& portfolioVarianceMatrix = transpose(matrixProportions) * covarianceMatrix_ * matrixProportions;
 			Real portfolioVariance = portfolioVarianceMatrix[0][0];
 			Real stdDeviation = std::sqrt(portfolioVariance);
@@ -98,6 +105,7 @@ namespace {
 	private:
 		const Matrix& covarianceMatrix_;
 		const Matrix& returnMatrix_;
+		int sizeProportions_;
 		Real c_;
 	};
 
@@ -164,25 +172,39 @@ namespace {
 		Real increment = .005;
 
 		for (int i = 0; i < 40; ++i) {
+			Size sizeProportions = portfolioReturnVector.size1() - 1;
 			Rate c = startingC + (i * increment);
-			ThetaCostFunction thetaCostFunction(covarianceMatrix, portfolioReturnVector);
+			ThetaCostFunction thetaCostFunction(covarianceMatrix, portfolioReturnVector, sizeProportions);
 			thetaCostFunction.setC(c);
-			Problem efficientFrontierNoShortSalesProblem(thetaCostFunction, noShortSalesPortfolioConstraints, Array(3, .2500));
+			Problem efficientFrontierNoShortSalesProblem(thetaCostFunction, noShortSalesPortfolioConstraints, Array(sizeProportions, .1111/*.2500*/));
 			Simplex solver(.01);
 			EndCriteria::Type noShortSalesSolution = solver.minimize(efficientFrontierNoShortSalesProblem, endCriteria);
 			std::cout << boost::format("Solution type: %s") % noShortSalesSolution << std::endl;
 
 			const Array& results = efficientFrontierNoShortSalesProblem.currentValue();
-			Array proportions(4);
+			Size sizeResult = results.size();
+			Array proportions(sizeResult + 1);
+			copy(results.begin(), results.end(), proportions.begin());
+
+			Real accumulate_ = 0;
+			for (Array::const_iterator i = results.begin(); i != results.end(); ++i) {
+				accumulate_ += *i;
+			}
+			proportions[results.size()] = 1 - accumulate_;
+			/*
 			proportions[0] = results[0];
 			proportions[1] = results[1];
 			proportions[2] = results[2];
 			proportions[3] = 1.0 - (results[0] + results[1] + results[2]);
+			*/
 			std::cout << boost::format("Constant (c): %.4f") % thetaCostFunction.getC() << std::endl;
+			copy(proportions.begin(), proportions.end(), ostream_iterator<Real>(cout, "\n"));
+			/*
 			std::cout << boost::format("AAPL weighting: %.4f") % proportions[0] << std::endl;
 			std::cout << boost::format("IBM weighting: %.4f") % proportions[1] << std::endl;
 			std::cout << boost::format("ORCL weighting: %.4f") % proportions[2] << std::endl;
 			std::cout << boost::format("GOOG weighting: %.4f") % proportions[3] << std::endl;
+			*/
 			std::cout << boost::format("Theta: %.4f") % (-1 * efficientFrontierNoShortSalesProblem.functionValue()) << std::endl;
 			Real portfolioMean = thetaCostFunction.portfolioMean(proportions);
 			std::cout << boost::format("Portfolio mean: %.4f") % portfolioMean << std::endl;
