@@ -58,14 +58,8 @@ namespace {
 		Real value(const Array& proportions) const {
 			QL_REQUIRE(proportions.size() == sizeProportions_, "Four assets in portfolio!");
 			Array allProportions((sizeProportions_ + 1));
-			//???cout << boost::format("accumulate: %.4f") % boost::accumulate(proportions, 0, plus<Real>()) << std::endl;
 			copy(proportions.begin(), proportions.end(), allProportions.begin());
-			
-			Real accumulate_ = 0;
-			for (Array::const_iterator i = proportions.begin(); i != proportions.end(); ++i) {
-				accumulate_ += *i; 
-			}
-			allProportions[sizeProportions_] = 1 - accumulate_;
+			allProportions[sizeProportions_] = 1 - boost::accumulate(proportions, 0);
 			/*
 			allProportions[0] = proportions[0];
 			allProportions[1] = proportions[1];
@@ -185,12 +179,7 @@ namespace {
 			Size sizeResult = results.size();
 			Array proportions(sizeResult + 1);
 			copy(results.begin(), results.end(), proportions.begin());
-
-			Real accumulate_ = 0;
-			for (Array::const_iterator i = results.begin(); i != results.end(); ++i) {
-				accumulate_ += *i;
-			}
-			proportions[results.size()] = 1 - accumulate_;
+			proportions[results.size()] = 1 - boost::accumulate(results, 0.0);
 			/*
 			proportions[0] = results[0];
 			proportions[1] = results[1];

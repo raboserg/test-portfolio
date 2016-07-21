@@ -59,10 +59,13 @@ void readDataFromFile() {
 	int index = 0;
 	//portfolio return vector         
 	Matrix portfolioReturnVector(table.size(), 1);
+	/*
+	copy(table.begin(), table.end(), portfolioReturnVector.row_begin(0));
+	cout << portfolioReturnVector << std::endl;
+	*/
 	for (map<string, vector<double> >::const_iterator i = table.begin(); i != table.end(); ++i) {
 		portfolioReturnVector[index++][0] = i->second[0];
 	}
-	
 	//testEfficientFrontier(PortfolioStatistics::instance().covariance(), portfolioReturnVector);
 	testPortfolioAllocationConstraints(PortfolioStatistics::instance().covariance(), portfolioReturnVector);
 	
@@ -72,9 +75,9 @@ void readDataFromFile() {
 
 int main()
 {
-	//testPortfolioAllocationConstraints();
 	readDataFromFile();
 	//testEfficientFrontier();
 	return 0;
 }
 
+ 
