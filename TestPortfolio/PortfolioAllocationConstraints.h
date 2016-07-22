@@ -59,7 +59,7 @@ namespace {
 			QL_REQUIRE(proportions.size() == sizeProportions_, "Four assets in portfolio!");
 			Array allProportions((sizeProportions_ + 1));
 			copy(proportions.begin(), proportions.end(), allProportions.begin());
-			allProportions[sizeProportions_] = 1 - boost::accumulate(proportions, 0);
+			allProportions[sizeProportions_] = 1 - boost::accumulate(proportions, 0.0);
 			/*
 			allProportions[0] = proportions[0];
 			allProportions[1] = proportions[1];
@@ -146,12 +146,15 @@ namespace {
 		std::vector<std::function<bool(const Array&)> >  noShortSalesConstraints(2);
 		//constraints implemented as C++ 11 lambda expressions
 		noShortSalesConstraints[0] = [](const Array& x) {
-			Real x4 = 1.0 - (x[0] + x[1] + x[2]); 
+			//Real x4 = 1.0 - (x[0] + x[1] + x[2]); 
+			Real x4 = 1.0 - boost::accumulate(x, 0.0);
 			return (x[0] >= 0.0 && x[1] >= 0.0 && x[2] >= 0.0 && x4 >= 0.0); 
 		};
 		noShortSalesConstraints[1] = [](const Array& x) {
-			Real x4 = 1.0 - (x[0] + x[1] + x[2]); 
-			return 1.0 - (x[0] + x[1] + x[2] + x4) < 1e-9; 
+			//Real x4 = 1.0 - (x[0] + x[1] + x[2]); 
+			Real sum = boost::accumulate(x, 0.0);
+			Real x4 = 1.0 - sum;
+			return 1.0 - (sum + x4) < 1e-9;
 		};
 
 		//instantiate constraints
