@@ -21,8 +21,8 @@ namespace {
 
 	public:
 
-		PortfolioAllocationConstraints(const std::vector<std::function<bool(const Array&)> >& expressions) : Constraint(boost::shared_ptr<PortfolioAllocationConstraints::Impl>(new
-			PortfolioAllocationConstraints::Impl(expressions))) {}
+		PortfolioAllocationConstraints(const std::vector<std::function<bool(const Array&)> >& expressions):
+			Constraint(boost::shared_ptr<PortfolioAllocationConstraints::Impl>(new PortfolioAllocationConstraints::Impl(expressions))) {}
 
 	private:
 		// constraint implementation
@@ -53,7 +53,7 @@ namespace {
 
 	public:
 		ThetaCostFunction(const Matrix& covarianceMatrix, const Matrix& returnMatrix, const int sizeProportions) :
-				covarianceMatrix_(covarianceMatrix),returnMatrix_(returnMatrix), sizeProportions_(sizeProportions) {}
+				covarianceMatrix_(covarianceMatrix), returnMatrix_(returnMatrix), sizeProportions_(sizeProportions) {}
 
 		Real value(const Array& proportions) const {
 			QL_REQUIRE(proportions.size() == sizeProportions_, "Four assets in portfolio!");
@@ -144,10 +144,15 @@ namespace {
 
 		//constraints
 		std::vector<std::function<bool(const Array&)> >  noShortSalesConstraints(2);
-
 		//constraints implemented as C++ 11 lambda expressions
-		noShortSalesConstraints[0] = [](const Array& x) {Real x4 = 1.0 - (x[0] + x[1] + x[2]); return (x[0] >= 0.0 && x[1] >= 0.0 && x[2] >= 0.0 && x4 >= 0.0); };
-		noShortSalesConstraints[1] = [](const Array& x) {Real x4 = 1.0 - (x[0] + x[1] + x[2]); return 1.0 - (x[0] + x[1] + x[2] + x4) < 1e-9; };
+		noShortSalesConstraints[0] = [](const Array& x) {
+			Real x4 = 1.0 - (x[0] + x[1] + x[2]); 
+			return (x[0] >= 0.0 && x[1] >= 0.0 && x[2] >= 0.0 && x4 >= 0.0); 
+		};
+		noShortSalesConstraints[1] = [](const Array& x) {
+			Real x4 = 1.0 - (x[0] + x[1] + x[2]); 
+			return 1.0 - (x[0] + x[1] + x[2] + x4) < 1e-9; 
+		};
 
 		//instantiate constraints
 		PortfolioAllocationConstraints noShortSalesPortfolioConstraints(noShortSalesConstraints);
@@ -157,8 +162,7 @@ namespace {
 		Real rootEpsilon = 1e-9;
 		Real functionEpsilon = 1e-9;
 		Real gradientNormEpsilon = 1e-9;
-		EndCriteria endCriteria(maxIterations, minStatIterations,
-			rootEpsilon, functionEpsilon, gradientNormEpsilon);
+		EndCriteria endCriteria(maxIterations, minStatIterations, rootEpsilon, functionEpsilon, gradientNormEpsilon);
 
 		std::map<Rate, std::pair<Volatility, Real> > mapOfStdDeviationToMeanNoShortSales;
 
