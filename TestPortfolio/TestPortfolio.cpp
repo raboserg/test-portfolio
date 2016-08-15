@@ -66,8 +66,9 @@ void readDataFromFile() {
 	for (map<string, vector<double> >::const_iterator i = table.begin(); i != table.end(); ++i) {
 		portfolioReturnVector[index++][0] = i->second[0];
 	}
-	//testEfficientFrontier(PortfolioStatistics::instance().covariance(), portfolioReturnVector);
-	testPortfolioAllocationConstraints(PortfolioStatistics::instance().covariance(), portfolioReturnVector);
+	
+	testEfficientFrontier(PortfolioStatistics::instance().covariance(), portfolioReturnVector);
+	//testPortfolioAllocationConstraints(PortfolioStatistics::instance().covariance(), portfolioReturnVector);
 	
 	//copy(v.begin(), v.end(), ostream_iterator<string>(cout, "\n"));
 	
@@ -76,7 +77,6 @@ void readDataFromFile() {
 int main()
 {
 	readDataFromFile();
-	//testEfficientFrontier();
 	return 0;
 }
 

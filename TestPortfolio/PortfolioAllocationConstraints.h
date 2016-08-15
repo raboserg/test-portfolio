@@ -146,10 +146,10 @@ namespace {
 		std::vector<std::function<bool(const Array&)> >  noShortSalesConstraints(2);
 		//constraints implemented as C++ 11 lambda expressions
 		noShortSalesConstraints[0] = [](const Array& x) {
-			//Real x4 = 1.0 - (x[0] + x[1] + x[2]); 
 			Real x4 = 1.0 - boost::accumulate(x, 0.0);
-			return (x[0] >= 0.0 && x[1] >= 0.0 && x[2] >= 0.0 && x4 >= 0.0); 
+			return (std::count_if(x.begin(), x.end(), [](int i) {return i >= 0.0; }) == x.size() && x4 >= 0.0);
 		};
+
 		noShortSalesConstraints[1] = [](const Array& x) {
 			//Real x4 = 1.0 - (x[0] + x[1] + x[2]); 
 			Real sum = boost::accumulate(x, 0.0);
@@ -177,7 +177,10 @@ namespace {
 			Rate c = startingC + (i * increment);
 			ThetaCostFunction thetaCostFunction(covarianceMatrix, portfolioReturnVector, sizeProportions);
 			thetaCostFunction.setC(c);
-			Problem efficientFrontierNoShortSalesProblem(thetaCostFunction, noShortSalesPortfolioConstraints, Array(sizeProportions, .1111/*.2500*/));
+			Problem efficientFrontierNoShortSalesProblem(thetaCostFunction, 
+				noShortSalesPortfolioConstraints, 
+				Array(sizeProportions, 1/(sizeProportions + 1)/*.2500 = 1/4*/));
+			
 			Simplex solver(.01);
 			EndCriteria::Type noShortSalesSolution = solver.minimize(efficientFrontierNoShortSalesProblem, endCriteria);
 			std::cout << boost::format("Solution type: %s") % noShortSalesSolution << std::endl;
