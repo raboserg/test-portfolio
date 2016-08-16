@@ -51,7 +51,8 @@ namespace {
 		covarianceMatrix[3][3] = .15; //GOOG-GOOG
 		*/
 
-		std::cout << "Covariance matrix of returns: " << std::endl << covarianceMatrix << std::endl;
+		std::cout << "Covariance matrix of returns: " << std::endl 
+			<< covarianceMatrix << std::endl;
 
 		Size _size = portfolioReturnVector.size1();
 
@@ -64,7 +65,8 @@ namespace {
 		portfolioReturnVector[2][0] = .07; //ORCL
 		portfolioReturnVector[3][0] = .08; //GOOG
 		*/
-		std::cout << "Portfolio return vector" << std::endl << portfolioReturnVector << std::endl;
+		std::cout << "Portfolio return vector" << std::endl 
+			<< portfolioReturnVector << std::endl;
 
 		//constant 
 		Rate c = .05;
@@ -75,7 +77,8 @@ namespace {
 			portfolioReturnVectorMinusC[i][0] = portfolioReturnVector[i][0] - c;
 		}
 
-		std::cout << boost::format("Portfolio return vector minus constantrate (c = %f)") % c << std::endl << portfolioReturnVectorMinusC << std::endl;
+		std::cout << boost::format("Portfolio return vector minus constantrate (c = %f)") % c << std::endl 
+			<< portfolioReturnVectorMinusC << std::endl;
 
 		//inverse of covariance matrix
 		const Matrix& inverseOfCovarMatrix = inverse(covarianceMatrix);
@@ -103,14 +106,16 @@ namespace {
 			weightsPortfolioA[i][0] = portfolioAz[i][0] / sumOfPortfolioAz;
 		}
 
-		std::cout << "Portfolio A weights" << std::endl << weightsPortfolioA << std::endl;
+		std::cout << "Portfolio A weights" << std::endl 
+			<< weightsPortfolioA << std::endl;
 
 		Matrix weightsPortfolioB(_size, 1);
 		for (int i = 0; i < _size; ++i) {
 			weightsPortfolioB[i][0] = portfolioBz[i][0] / sumOfPortfolioBz;
 		}
 
-		std::cout << "Portfolio B weights" << std::endl << weightsPortfolioB << std::endl;
+		std::cout << "Portfolio B weights" << std::endl 
+			<< weightsPortfolioB << std::endl;
 
 		//portfolio risk and return
 		const Matrix& expectedReturnPortfolioAMatrix = transpose(weightsPortfolioA) * portfolioReturnVector;
