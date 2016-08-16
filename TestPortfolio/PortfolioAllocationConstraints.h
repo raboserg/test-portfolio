@@ -149,7 +149,7 @@ namespace {
 			Real x4 = 1.0 - boost::accumulate(x, 0.0);
 			return (std::count_if(x.begin(), x.end(), [](int i) {return i >= 0.0; }) == x.size() && x4 >= 0.0);
 		};
-
+		//constraints implemented as C++ 11 lambda expressions
 		noShortSalesConstraints[1] = [](const Array& x) {
 			//Real x4 = 1.0 - (x[0] + x[1] + x[2]); 
 			Real sum = boost::accumulate(x, 0.0);
@@ -160,27 +160,30 @@ namespace {
 		//instantiate constraints
 		PortfolioAllocationConstraints noShortSalesPortfolioConstraints(noShortSalesConstraints);
 
-		Size maxIterations = 100000;
-		Size minStatIterations = 100;
-		Real rootEpsilon = 1e-9;
-		Real functionEpsilon = 1e-9;
-		Real gradientNormEpsilon = 1e-9;
+		const Size maxIterations = 100000;
+		const Size minStatIterations = 100;
+		const Real rootEpsilon = 1e-9;
+		const Real functionEpsilon = 1e-9;
+		const Real gradientNormEpsilon = 1e-9;
 		EndCriteria endCriteria(maxIterations, minStatIterations, rootEpsilon, functionEpsilon, gradientNormEpsilon);
 
 		std::map<Rate, std::pair<Volatility, Real> > mapOfStdDeviationToMeanNoShortSales;
 
-		Rate startingC = -.035;
-		Real increment = .005;
+		const Rate startingC = -.035;
+		const Real increment = .005;
+
+		const Size sizeProportions = portfolioReturnVector.size1() - 1;
+		const Real valueProportions = 1 / (static_cast<Real>(sizeProportions) + 1); /*.2500 = 1/4*/
+		ThetaCostFunction thetaCostFunction(covarianceMatrix, portfolioReturnVector, sizeProportions);
 
 		for (int i = 0; i < 40; ++i) {
-			Size sizeProportions = portfolioReturnVector.size1() - 1;
+			
 			Rate c = startingC + (i * increment);
-			ThetaCostFunction thetaCostFunction(covarianceMatrix, portfolioReturnVector, sizeProportions);
+
 			thetaCostFunction.setC(c);
 			Problem efficientFrontierNoShortSalesProblem(thetaCostFunction, 
 				noShortSalesPortfolioConstraints, 
-				Array(sizeProportions, 1/(sizeProportions + 1)/*.2500 = 1/4*/));
-			
+				Array(sizeProportions, valueProportions));
 			Simplex solver(.01);
 			EndCriteria::Type noShortSalesSolution = solver.minimize(efficientFrontierNoShortSalesProblem, endCriteria);
 			std::cout << boost::format("Solution type: %s") % noShortSalesSolution << std::endl;

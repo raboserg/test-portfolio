@@ -13,17 +13,18 @@
 namespace {
 	using namespace QuantLib;
 
-	double calculatePortfolioReturn(double proportionA, double expectedReturnA, double expectedReturnB) {
+	double calculatePortfolioReturn(const double proportionA, const double expectedReturnA, const double expectedReturnB) {
 		return proportionA * expectedReturnA + (1 - proportionA) * expectedReturnB;
 	}
 
-	Volatility calculatePortfolioRisk(double proportionA, Volatility volatilityA, Volatility volatilityB, double covarianceAB) {
-		return std::sqrt(std::pow(proportionA, 2) * std::pow(volatilityA, 2) + std::pow(1 - proportionA, 2) *
-			std::pow(volatilityB, 2) + (2 * proportionA * (1 - proportionA) * covarianceAB));
+	Volatility calculatePortfolioRisk(const double proportionA, const Volatility volatilityA, const Volatility volatilityB, const double covarianceAB) {
+		return std::sqrt(
+			std::pow(proportionA, 2) * std::pow(volatilityA, 2) + std::pow(1 - proportionA, 2) * std::pow(volatilityB, 2) + (2 * proportionA * (1 - proportionA) * covarianceAB)
+		);
 	}
 
 	//BOOST_AUTO_TEST_CASE(testEfficientFrontier) {
-	void testEfficientFrontier(Matrix covarianceMatrix, Matrix portfolioReturnVector) {
+	void testEfficientFrontier(const Matrix covarianceMatrix, const Matrix portfolioReturnVector) {
 
 		
 		/*
@@ -50,8 +51,7 @@ namespace {
 		covarianceMatrix[3][3] = .15; //GOOG-GOOG
 		*/
 
-		std::cout << "Covariance matrix of returns: " << std::endl;
-		std::cout << covarianceMatrix << std::endl;
+		std::cout << "Covariance matrix of returns: " << std::endl << covarianceMatrix << std::endl;
 
 		Size _size = portfolioReturnVector.size1();
 
@@ -64,8 +64,7 @@ namespace {
 		portfolioReturnVector[2][0] = .07; //ORCL
 		portfolioReturnVector[3][0] = .08; //GOOG
 		*/
-		std::cout << "Portfolio return vector" << std::endl;
-		std::cout << portfolioReturnVector << std::endl;
+		std::cout << "Portfolio return vector" << std::endl << portfolioReturnVector << std::endl;
 
 		//constant 
 		Rate c = .05;
@@ -76,8 +75,7 @@ namespace {
 			portfolioReturnVectorMinusC[i][0] = portfolioReturnVector[i][0] - c;
 		}
 
-		std::cout << boost::format("Portfolio return vector minus constantrate (c = %f)") % c << std::endl;
-		std::cout << portfolioReturnVectorMinusC << std::endl;
+		std::cout << boost::format("Portfolio return vector minus constantrate (c = %f)") % c << std::endl << portfolioReturnVectorMinusC << std::endl;
 
 		//inverse of covariance matrix
 		const Matrix& inverseOfCovarMatrix = inverse(covarianceMatrix);
@@ -105,16 +103,14 @@ namespace {
 			weightsPortfolioA[i][0] = portfolioAz[i][0] / sumOfPortfolioAz;
 		}
 
-		std::cout << "Portfolio A weights" << std::endl;
-		std::cout << weightsPortfolioA << std::endl;
+		std::cout << "Portfolio A weights" << std::endl << weightsPortfolioA << std::endl;
 
 		Matrix weightsPortfolioB(_size, 1);
 		for (int i = 0; i < _size; ++i) {
 			weightsPortfolioB[i][0] = portfolioBz[i][0] / sumOfPortfolioBz;
 		}
 
-		std::cout << "Portfolio B weights" << std::endl;
-		std::cout << weightsPortfolioB << std::endl;
+		std::cout << "Portfolio B weights" << std::endl << weightsPortfolioB << std::endl;
 
 		//portfolio risk and return
 		const Matrix& expectedReturnPortfolioAMatrix = transpose(weightsPortfolioA) * portfolioReturnVector;
@@ -147,8 +143,8 @@ namespace {
 		double increment = .10;
 		std::map<double, std::pair<Volatility, double> > mapOfProportionToRiskAndReturn;
 		std::map<Volatility, double> mapOfVolatilityToReturn;
-		for (int i = 0; i<21; ++i) {
-			double proportionA = startingProportion + i*increment;
+		for (int i = 0; i < 21; ++i) {
+			double proportionA = startingProportion + i * increment;
 			Volatility riskEF = calculatePortfolioRisk(proportionA, stdDeviationPortfolioA, stdDeviationPortfolioB, covarianceAB);
 			double returnEF = calculatePortfolioReturn(proportionA, expectedReturnPortfolioA, expectedReturnPortfolioB);
 			mapOfProportionToRiskAndReturn[proportionA] = std::make_pair(riskEF, returnEF);
