@@ -149,9 +149,9 @@ namespace {
 		std::map<double, std::pair<Volatility, double> > mapOfProportionToRiskAndReturn;
 		std::map<Volatility, double> mapOfVolatilityToReturn;
 		for (int i = 0; i < 21; ++i) {
-			double proportionA = startingProportion + i * increment;
-			Volatility riskEF = calculatePortfolioRisk(proportionA, stdDeviationPortfolioA, stdDeviationPortfolioB, covarianceAB);
-			double returnEF = calculatePortfolioReturn(proportionA, expectedReturnPortfolioA, expectedReturnPortfolioB);
+			const double proportionA = startingProportion + i * increment;
+			const Volatility riskEF = calculatePortfolioRisk(proportionA, stdDeviationPortfolioA, stdDeviationPortfolioB, covarianceAB);
+			const double returnEF = calculatePortfolioReturn(proportionA, expectedReturnPortfolioA, expectedReturnPortfolioB);
 			mapOfProportionToRiskAndReturn[proportionA] = std::make_pair(riskEF, returnEF);
 			mapOfVolatilityToReturn[riskEF] = returnEF;
 		}
