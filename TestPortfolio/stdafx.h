@@ -27,3 +27,4 @@
 #include "PortfolioAllocationConstraints.h"
 #include "EfficientFrontier.h"
 
+#include "TimeSeriesDemo.h"

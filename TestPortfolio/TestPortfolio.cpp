@@ -39,6 +39,13 @@ void readDataFromFile() {
 
 	map<string, vector<double> > table;
 	ifstream _file("d:\\MY\\Data\\output_file.txt");
+	__try {
+
+	}
+	__finally {
+
+	}
+
 	if (_file.is_open()) {
 		string line;
 		while (getline(_file, line)) {
@@ -72,6 +79,13 @@ void readDataFromFile() {
 	
 	//copy(v.begin(), v.end(), ostream_iterator<string>(cout, "\n"));
 	
+}
+
+void testTimeSeries() {
+	TimeSeries<Real> series = init();
+	for (TimeSeries<Real>::const_iterator it = series.begin(); it != series.end(); ++it) {
+		std::cout << it->first << " " << it->second << std::endl;
+	}
 }
 
 int main()
