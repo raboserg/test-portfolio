@@ -1,4 +1,4 @@
-// TestPortfolio.cpp: определяет точку входа для консольного приложения.
+// TestPortfolio.cpp
 //
 
 #include "stdafx.h"
